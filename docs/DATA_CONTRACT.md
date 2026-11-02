@@ -31,7 +31,7 @@ All prices are in the instrument's quoted currency. Percentage fields use percen
 | `rsi14` | yes, nullable | indicator points |
 | `sma20`, `sma50`, `sma200` | yes, nullable | price units |
 | `momentum_20d_pct` | yes, nullable | percentage points |
-| `volatility_20d_pct` | yes, nullable | provider-defined percentage points; document annualization upstream |
+| `volatility_20d_pct` | yes, nullable | non-negative, provider-defined percentage points; document annualization upstream |
 | `pe_ratio` | no, nullable | ratio |
 | `earnings_growth_pct` | no, nullable | percentage points |
 | `days_to_earnings` | no, nullable | integer calendar days; may be negative after an event |

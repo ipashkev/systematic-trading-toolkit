@@ -153,8 +153,11 @@ class MarketSnapshot:
         optional_finite(self.rsi14, "snapshot.rsi14")
         if self.rsi14 is not None and not 0 <= self.rsi14 <= 100:
             raise ValueError("snapshot.rsi14 must be between 0 and 100")
-        for name in ("sma20", "sma50", "sma200", "volatility_20d_pct"):
+        for name in ("sma20", "sma50", "sma200"):
             optional_finite(getattr(self, name), f"snapshot.{name}", positive=True)
+        optional_finite(self.volatility_20d_pct, "snapshot.volatility_20d_pct")
+        if self.volatility_20d_pct is not None and self.volatility_20d_pct < 0:
+            raise ValueError("snapshot.volatility_20d_pct must be non-negative")
         for name in ("momentum_20d_pct", "pe_ratio", "earnings_growth_pct"):
             optional_finite(getattr(self, name), f"snapshot.{name}")
         if self.days_to_earnings is not None and (

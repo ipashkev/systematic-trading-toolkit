@@ -28,6 +28,14 @@ class ModelTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "must be an integer"):
                     parse_manifest(raw)
 
+    def test_zero_volatility_is_valid_but_negative_volatility_is_rejected(self):
+        raw = copy.deepcopy(self.raw)
+        raw["snapshots"][0]["volatility_20d_pct"] = 0
+        self.assertEqual(parse_manifest(raw).snapshots[0].volatility_20d_pct, 0)
+        raw["snapshots"][0]["volatility_20d_pct"] = -0.1
+        with self.assertRaisesRegex(ValueError, "must be non-negative"):
+            parse_manifest(raw)
+
     def test_timezone_is_required(self):
         raw = copy.deepcopy(self.raw)
         raw["decision_time"] = "2026-01-15T21:00:00"

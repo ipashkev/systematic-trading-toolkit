@@ -136,7 +136,7 @@ class VisualSectorsProvider(MarketDataProvider):
         base_url: str | None = None,
         env_file: str | Path = ".env",
         cache_dir: str | Path | None = None,
-        timeout: float = 30.0,
+        timeout: float = 120.0,
     ) -> None:
         file_values = _dotenv(Path(env_file))
         self._api_key = (
@@ -467,7 +467,8 @@ class VisualSectorsProvider(MarketDataProvider):
             for _day, close, volume in window[-20:]
             if close is not None and volume is not None and volume >= 0
         ]
-        adv = sum(dollar_volumes) / 20 if len(dollar_volumes) == 20 else None
+        total_dollar_volume = sum(dollar_volumes)
+        adv = total_dollar_volume / 20 if len(dollar_volumes) == 20 and total_dollar_volume > 0 else None
         return momentum, volatility, adv
 
     @staticmethod

@@ -109,6 +109,17 @@ class VisualSectorsProviderTests(unittest.TestCase):
             self.assertIn("non-point-in-time", " ".join(row.warnings))
             self.assertFalse(hasattr(row.levels[0], "expected_bounce_usd"))
 
+    def test_zero_dollar_volume_is_reported_as_missing(self):
+        bars = [
+            {"date": (date(2026, 9, 1) + timedelta(days=index)).isoformat(),
+             "close": 100 + index, "volume": 0}
+            for index in range(21)
+        ]
+        momentum, volatility, adv = VisualSectorsProvider._derived_bar_fields(bars)
+        self.assertIsNotNone(momentum)
+        self.assertIsNotNone(volatility)
+        self.assertIsNone(adv)
+
     def test_live_universe_is_seeded_by_post_screen(self):
         with tempfile.TemporaryDirectory() as directory:
             provider = RecordedProvider(directory)
@@ -531,6 +542,16 @@ class VisualSectorsProviderTests(unittest.TestCase):
             self.assertTrue(str(caught.exception).endswith("run: vstoolkit login"))
             self.assertIn("https://api.visualsectors.com/signup", str(caught.exception))
             self.assertNotIn("do-not-echo", str(caught.exception))
+
+    def test_api_request_uses_120_second_default_timeout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            provider = VisualSectorsProvider(api_key="recorded-test-key", cache_dir=directory)
+            with patch(
+                "visualsectors_toolkit.providers.visualsectors.urlopen",
+                return_value=BytesIO(b'{"ok":true}'),
+            ) as http:
+                self.assertEqual(provider._request_json("GET", "/v1/health", cache=False), {"ok": True})
+            self.assertEqual(http.call_args.kwargs["timeout"], 120.0)
 
     def test_key_file_is_rejected_without_echoing_its_contents(self):
         with self.assertRaisesRegex(ValueError, "single token"):
